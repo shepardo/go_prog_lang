@@ -9,11 +9,27 @@ package main
 import (
 	"time"
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
 	start := time.Now()
-	time.Sleep(3 * time.Second)
-	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
-	fmt.Printf("%dms elapsed\n", time.Since(start).Milliseconds())
+	//time.Sleep(3 * time.Second)
+	//fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+	fmt.Println(os.Args[1:])
+	fmt.Printf("%dms elapsed\n", time.Since(start).Microseconds())
+
+	start = time.Now()
+	fmt.Println(strings.Join(os.Args[1:], " "))
+	fmt.Printf("%dms elapsed\n", time.Since(start).Microseconds())
+
+	start = time.Now()
+	s := ""
+	sep := ""
+	for i := 0; i < len(os.Args); i++ {
+		s += sep + os.Args[i]
+		sep = " "
+	}
+	fmt.Printf("%dms elapsed\n", time.Since(start).Microseconds())
 }
