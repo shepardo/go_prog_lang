@@ -1,11 +1,13 @@
 // Fetch prints the content found at a URL.
 package main
+
 import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 )
+
 func main() {
 	for _, url := range os.Args[1:] {
 		resp, err := http.Get(url)
