@@ -20,7 +20,8 @@ import (
 	"io"
 	"math"
 	"math/rand"
-	"os"
+//	"os"
+	"strconv"
 )
 
 var mu sync.Mutex
@@ -53,6 +54,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	count++
 	mu.Unlock()
+	/*
 	fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
 	for k, v := range r.Header {
 		fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
@@ -65,6 +67,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	for k, v := range r.Form {
 		fmt.Fprintf(w, "Form[%q] = %q\n", k, v)
 	}
+	*/
+	bgIndexStr := r.URL.Query().Get("bgColor")
+	if bgIndexStr != "" {
+		bgIndex, err := strconv.Atoi(bgIndexStr)
+		if err == nil {
+			lissajous(w, bgIndex)
+		}
+	} else {
+		lissajous(w, 1)
+	}
 }
 
 // counter echoes the number of calls so far.
@@ -74,7 +86,7 @@ func counter(w http.ResponseWriter, r *http.Request) {
   mu.Unlock()
 }
 
-func lissajous(out io.Writer) {
+func lissajous(out io.Writer, idxBg int) {
 	const (
 		cycles =5 // number of complete x oscillator revolutions
 		res = 0.001 // angular resolution
@@ -85,7 +97,7 @@ func lissajous(out io.Writer) {
 	freq := rand.Float64() * 3.0 // relative frequency of y oscillator
 	anim := gif.GIF{LoopCount: nframes}
 	phase := 0.0 // phase difference
-	idxBg := 1	// Background color
+	//idxBg := 1	// Background color
 	for i := 0; i < nframes; i++ {
 		rect := image.Rect(0, 0, 2*size+1, 2*size+1)
 		img := image.NewPaletted(rect, palette)
