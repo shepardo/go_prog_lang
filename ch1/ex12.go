@@ -3,6 +3,13 @@ Exercise 1.12: Modify the Lissajous ser ver to read parameter values from the UR
 you might arrange it so that a URL like http://localhost:8000/?cycles=20 sets the
 number of cycles to 20 instead of the defau lt 5. Use the strconv.Atoi function to convert the
 string parameter into an integer. You can see its documentation with go doc strconv.Atoi.
+
+freq = 1.813981
+freq = 2.821527
+freq = 1.993680
+freq = 1.313143
+
+http://localhost:8000/?bgColor=3&freq=1.993680
 */
 
 // Server3 is a minimal "echo" and counter server.
@@ -20,7 +27,6 @@ import (
 	"io"
 	"math"
 	"math/rand"
-//	"os"
 	"strconv"
 )
 
@@ -69,14 +75,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	*/
 	bgIndexStr := r.URL.Query().Get("bgColor")
+
+	var err error = nil
+	bgIndex := 1
 	if bgIndexStr != "" {
-		bgIndex, err := strconv.Atoi(bgIndexStr)
+		bgIndex, err = strconv.Atoi(bgIndexStr)
 		if err == nil {
-			lissajous(w, bgIndex)
+			// nothing
 		}
-	} else {
-		lissajous(w, 1)
 	}
+	freqStr := r.URL.Query().Get("freq")
+	freq := rand.Float64() * 3.0 // relative frequency of y oscillator
+	if freqStr != "" {
+		freq, err = strconv.ParseFloat(freqStr, 64)
+	}
+	lissajous(w, bgIndex, freq)
 }
 
 // counter echoes the number of calls so far.
@@ -86,7 +99,7 @@ func counter(w http.ResponseWriter, r *http.Request) {
   mu.Unlock()
 }
 
-func lissajous(out io.Writer, idxBg int) {
+func lissajous(out io.Writer, idxBg int, freq float64) {
 	const (
 		cycles =5 // number of complete x oscillator revolutions
 		res = 0.001 // angular resolution
@@ -94,7 +107,7 @@ func lissajous(out io.Writer, idxBg int) {
 		nframes = 64 // number of animation frames
 		delay =8 // delay between frames in 10ms units
 	)
-	freq := rand.Float64() * 3.0 // relative frequency of y oscillator
+	fmt.Printf("freq = %f", freq)
 	anim := gif.GIF{LoopCount: nframes}
 	phase := 0.0 // phase difference
 	//idxBg := 1	// Background color
@@ -105,7 +118,7 @@ func lissajous(out io.Writer, idxBg int) {
 		var _ = bgColor
 		var _ = draw.Draw
 		draw.Draw(img, img.Bounds(), &image.Uniform{bgColor}, image.ZP, draw.Src)
-		idxBg = ((idxBg + 1) % len(palette) - 1) + 1
+		//idxBg = ((idxBg + 1) % len(palette) - 1) + 1
 		for t := 0.0; t < cycles*2*math.Pi; t += res {
 			x := math.Sin(t)
 			y := math.Sin(t*freq + phase)
